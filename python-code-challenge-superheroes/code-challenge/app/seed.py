@@ -36,7 +36,8 @@ def seed_heroes():
 
     db.session.commit()
 
-# Add powers to heroes
+# Adding
+#  powers to heroes
 def add_powers_to_heroes():
     strengths = ["Strong", "Weak", "Average"]
     heroes = Hero.query.all()

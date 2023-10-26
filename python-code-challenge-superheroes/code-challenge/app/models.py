@@ -9,9 +9,11 @@ class Hero(db.Model,SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    hero_powers = db.relationship("HeroPower", backref = "hero")
+    hero_powers = db.relationship("HeroPower")
+
 
 # add any models you may need. 
+
 
 class Power(db.Model,SerializerMixin):
     __tablename__ = 'power'
@@ -19,7 +21,7 @@ class Power(db.Model,SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    hero_powers = db.relationship("HeroPower",backref="power")
+    hero_powers = db.relationship("HeroPower", back_populates="power") 
 
     @validates('description')
     def validate_description(self, key, description):
@@ -35,7 +37,7 @@ class HeroPower(db.Model, SerializerMixin):
     hero_id = db.Column(db.Integer, db.ForeignKey('hero.id'), nullable=False)
     power_id = db.Column(db.Integer, db.ForeignKey('power.id'), nullable=False)
 
-    hero = db.relationship("Hero", back_populates="hero_powers")
+    hero_parent = db.relationship("Hero", back_populates="hero_powers")
     power = db.relationship("Power", back_populates="hero_powers")
 
     @validates('strength')
