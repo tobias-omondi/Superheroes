@@ -30,24 +30,20 @@ api.add_resource(Home, "/")
 # def home():
 #     return
 
-class HeroListResource(Resource):
-    def get(self):
-        heroes = Hero.query.all()
-        json_heroes = []
-        for hero in heroes:
-            json_hero = {
-                "id": hero.id,
-                "name": hero.name,
-                "super_name": hero.super_name
-            }
-            json_heroes.append(json_hero)
+@app.route('/heroes', methods=['GET'])
+def get_heroes():
+    heroes = Hero.query.all()
+    json_heroes = []
+    for hero in heroes:
+        json_hero = {
+            "id": hero.id,
+            "name": hero.name,
+            "super_name": hero.super_name
+        }
+        json_heroes.append(json_hero)
 
-        response = make_response
-        (jsonify(json_heroes),
-        200)
-        return response
-
-api.add_resource(HeroListResource, '/heroes')
+    response = make_response(jsonify(json_heroes), 200)
+    return response
 
 class HeroResource(Resource):
     def get(self, hero_id):
@@ -73,26 +69,21 @@ class HeroResource(Resource):
             json_hero["powers"].append(json_power)
 
         response = make_response(jsonify(json_hero))
-        
         return response
-    
-class PowerListResource(Resource):
-    def get(self):
-        powers = Power.query.all()
-        json_powers = []
-        for power in powers:
-            json_power = {
-                "id": power.id,
-                "name": power.name,
-                "description": power.description
-            }
-            json_powers.append(json_power)
-
-        response = make_response(jsonify(json_powers))
         
-        return response
+@app.route('/powers', methods=['GET'])
+def get_powers():
+     powers = Power.query.all()
+     serialized_powers = []
+     for power in powers:
+        json_power = {
+            "id": power.id,
+            "name": power.name,
+            "description": power.description
+        }
+        serialized_powers.append(json_power)
 
-api.add_resource(PowerListResource, '/powers')
+     return jsonify(serialized_powers)
 
 class PowerResource(Resource):
     def get(self, power_id):
@@ -111,7 +102,7 @@ class PowerResource(Resource):
         response = make_response(jsonify(json_power),200)
         
         return response
-
+    
 api.add_resource(PowerResource, '/powers/<int:power_id>', endpoint ='power')
 
 
@@ -191,5 +182,9 @@ api.add_resource(HeroPowerResource, '/hero_powers')
 #     return ''
 
 
+    
+    
+
+
 if __name__ == '__main__':
-    app.run(port=5555)
+    app.run(port=5552, debug= True)

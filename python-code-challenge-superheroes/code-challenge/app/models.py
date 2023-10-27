@@ -10,6 +10,7 @@ class Hero(db.Model,SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     hero_powers = db.relationship("HeroPower")
+    super_name = db.Column(db.String(100), nullable=False) 
 
 
 # add any models you may need. 
