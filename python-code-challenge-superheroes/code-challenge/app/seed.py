@@ -1,49 +1,67 @@
-from app import app
-from random import randint,choice
-from models import db,Hero, Power, HeroPower
 
+#!/usr/bin/env python3
 
-from sqlalchemy import func
+from random import choice as rc
+from app import app, db
+from models import Hero, Power, HeroPower
 
+powers_data = [
+    {"name": "super strength", "description": "gives the wielder super-human strengths"},
+    {"name": "flight", "description": "gives the wielder the ability to fly through the skies at supersonic speed"},
+    {"name": "super human senses", "description": "allows the wielder to use her senses at a super-human level"},
+    {"name": "elasticity", "description": "can stretch the human body to extreme lengths"}
+
+]
+
+heroes_data = [
+    {"name": "Kamala Khan", "super_name": "Ms. Marvel"},
+    {"name": "Doreen Green", "super_name": "Squirrel Girl"},
+    {"name": "Gwen Stacy", "super_name": "Spider-Gwen"},
+    {"name": "Janet Van Dyne", "super_name": "The Wasp"},
+    {"name": "Wanda Maximoff", "super_name": "Scarlet Witch"},
+    {"name": "Carol Danvers", "super_name": "Captain Marvel"},
+    {"name": "Jean Grey", "super_name": "Dark Phoenix"},
+    {"name": "Ororo Munroe", "super_name": "Storm"},
+    {"name": "Kitty Pryde", "super_name": "Shadowcat"},
+    {"name": "Elektra Natchios", "super_name": "Elektra"}
+]
+
+strengths = ["Strong", "Weak", "Average"]
 
 with app.app_context():
-    Hero.query.delete()
-    Power.query.delete()
+    # Deleting existing data
     HeroPower.query.delete()
-    # 🦸‍♀️ Seeding powers...
-    powers = [
-        Power(name="super strength", description="gives the wielder super-human strengths"),
-        Power(name="flight", description="gives the wielder the ability to fly through the skies at supersonic speed"),
-        Power(name="super human senses", description="allows the wielder to use her senses at a super-human level"),
-        Power(name="elasticity", description="can stretch the human body to extreme lengths")
-    ]
+    Power.query.delete()
+    Hero.query.delete()
 
-    db.session.add_all(powers)
+    # Seeding powers
+    for power in powers_data:
+        p = Power(name=power["name"], description=power["description"])
+        db.session.add(p)
+
     db.session.commit()
+    print("🦸‍♀️ Seeded powers...")
 
-    # 🦸‍♀️ Seeding heroes...
-    heroes = [
-        Hero(name="Doreen Green", super_name="Squirrel Girl"),
-        Hero(name="Gwen Stacy", super_name="Spider-Gwen"),
-        Hero(name="Janet Van Dyne", super_name="The Wasp"),
-        Hero(name="Wanda Maximoff", super_name="Scarlet Witch"),
-        Hero(name="Carol Danvers", super_name="Captain Marvel"),
-        Hero(name="Jean Grey", super_name="Dark Phoenix"),
-        Hero(name="Ororo Munroe", super_name="Storm"),
-        Hero(name="Kitty Pryde", super_name="Shadowcat"),
-        Hero(name="Elektra Natchios", super_name="Elektra")
-    ]
+    # Seeding heroes
+    for hero in heroes_data:
+        h = Hero(name=hero["name"], super_name=hero["super_name"])
+        db.session.add(h)
 
-    db.session.add_all(heroes)
     db.session.commit()
+    print("🦸‍♀️ Seeded heroes...")
 
-    powers = Power.query.all()
+    # Adding powers to heroes
+    all_heroes = Hero.query.all()
+    all_powers = Power.query.all()
 
-    # 🦸‍♀️ Adding powers to heroes...
-    strengths = ["Strong", "Weak", "Average"]
-    for hero in Hero.query.all():
-        for i in range(randint(1, 9)):
-            power = choice(powers)
-            hero_power = HeroPower(hero=hero, power=power, strength=choice(strengths))
-            db.session.add(hero_power)
+    for hero in all_heroes:
+        for _ in range(rc([1, 2, 3])):
+            power = rc(all_powers)
+            strength = rc(strengths)
+            hp = HeroPower(hero_id=hero.id, power_id=power.id, strength=strength)
+            db.session.add(hp)
+
     db.session.commit()
+    print("🦸‍♀️ Added powers to heroes...")
+
+print("🦸‍♀️ Done seeding!")
