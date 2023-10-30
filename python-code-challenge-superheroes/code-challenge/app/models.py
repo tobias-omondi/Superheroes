@@ -1,28 +1,39 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Enum
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
-class Hero(db.Model,SerializerMixin):
+class Hero(db.Model, SerializerMixin):
     __tablename__ = 'hero'
+    serialize_rules = ('-heropowers.hero',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    hero_powers = db.relationship("HeroPower")
-    super_name = db.Column(db.String(100), nullable=False) 
+    super_name = db.Column(db.String(50), nullable=False) 
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+    hero_powers = db.relationship("HeroPower", back_populates='hero')
+
+    def __repr__(self):
+        return f'<Hero {self.name} aka {self.super_name}>'
 
 
-# add any models you may need. 
-
-
-class Power(db.Model,SerializerMixin):
-    __tablename__ = 'power'
+class Power(db.Model, SerializerMixin):
+    __tablename__ = 'powers'
+    serialize_rules = ('-heropowers.power',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    hero_powers = db.relationship("HeroPower", back_populates="power") 
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    hero_powers = db.relationship("HeroPower", back_populates="power", primaryjoin="Power.id == HeroPower.power_id")
+    
+    def __repr__(self):
+        return f'<Power {self.name} aka {self.description}'
 
     @validates('description')
     def validate_description(self, key, description):
@@ -31,14 +42,15 @@ class Power(db.Model,SerializerMixin):
         return description
 
 class HeroPower(db.Model, SerializerMixin):
-    __tablename__ = 'hero_power'
+    __tablename__ = 'heropowers'
+    serialize_rules = ('-hero.powers', '-power.heroes')
 
     id = db.Column(db.Integer, primary_key=True)
-    strength = db.Column(db.String(30), nullable=False)
+    strength = db.Column(Enum('Strong', 'Weak', 'Average'), nullable=False)
     hero_id = db.Column(db.Integer, db.ForeignKey('hero.id'), nullable=False)
-    power_id = db.Column(db.Integer, db.ForeignKey('power.id'), nullable=False)
+    power_id = db.Column(db.Integer, db.ForeignKey('powers.id'), nullable=False)
 
-    hero_parent = db.relationship("Hero", back_populates="hero_powers")
+    hero = db.relationship("Hero", back_populates="hero_powers")
     power = db.relationship("Power", back_populates="hero_powers")
 
     @validates('strength')
