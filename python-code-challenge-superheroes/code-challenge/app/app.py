@@ -60,17 +60,10 @@ class HeroResource(Resource):
             "powers": []
         }
 
-        for power in hero.hero_powers:
-            json_power = {
-                "id": power.id,
-                "name": power.name,
-                "description": power.description
-            }
-            json_hero["powers"].append(json_power)
-
         response = make_response(jsonify(json_hero))
         return response
-        
+api.add_resource(HeroResource, '/heroes/<int:hero_id>')
+
 @app.route('/powers', methods=['GET'])
 def get_powers():
      powers = Power.query.all()
@@ -155,7 +148,7 @@ class HeroPowerResource(Resource):
             return response
 
         hero = Hero.query.get(json_data["hero_id"])
-
+        
         json_hero = {
             "id": hero.id,
             "name": hero.name,
@@ -187,4 +180,4 @@ api.add_resource(HeroPowerResource, '/hero_powers')
 
 
 if __name__ == '__main__':
-    app.run(port=5552, debug= True)
+    app.run(port=5550, debug= True)
